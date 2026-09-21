@@ -134,66 +134,36 @@ In your Google Sheet, click the **`+`** icon at the bottom to add a second tab n
 
 ## 🌐 Deployment Options
 
-### Deploy to GitHub Pages
-`vite.config.ts` is configured with `base: './'`, enabling the app to load assets properly when deployed under any repository subpath (e.g. `https://<username>.github.io/<repo-name>/`) without showing a blank screen.
+### Deploy to GitHub Pages (Why Blank Page Happens & How to Fix It)
 
-#### Option A: GitHub Actions (Recommended)
-1. In your GitHub repository, navigate to **Settings > Pages**.
-2. Under **Build and deployment > Source**, select **GitHub Actions**.
-3. Create `.github/workflows/deploy.yml` in your repo:
-```yaml
-name: Deploy to GitHub Pages
+> ⚠️ **Why does a blank page appear on GitHub Pages?**
+> A blank page on GitHub Pages is almost always caused by one of two things:
+> 1. **Deploying the raw source instead of the build:** In GitHub **Settings > Pages**, if the Source is left as *"Deploy from a branch"* pointing to `main / (root)`, GitHub Pages serves raw source code (`src/main.tsx`). Web browsers cannot execute uncompiled TypeScript/JSX, so the page is blank!
+> 2. **Base path mismatch:** Asset links pointing to `/assets/...` instead of the repository name subpath (`/<repo-name>/assets/...`).
 
-on:
-  push:
-    branches: ['main']
-  workflow_dispatch:
+We have included automated fixes for both:
+- Added `.github/workflows/deploy.yml` which automatically builds `npm run build` and deploys the compiled `dist/` directory.
+- Configured dynamic base URL in `vite.config.ts` so all assets and routes resolve properly on GitHub Pages.
+- Added automatic `404.html` SPA fallback copying during build.
+- Added React `ErrorBoundary` so any runtime glitch displays a friendly recovery UI instead of a blank white screen.
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+#### Recommended Method: Automated GitHub Actions
+1. In your GitHub repository, click on **Settings** (tab at the top).
+2. On the left sidebar, click **Pages**.
+3. Under **Build and deployment > Source**, click the dropdown and select **GitHub Actions** (NOT "Deploy from a branch").
+4. Since `.github/workflows/deploy.yml` is already committed in the project, any push to `main` (or clicking **Actions > Deploy to GitHub Pages > Run workflow**) will automatically build and publish your site!
 
-concurrency:
-  group: 'pages'
-  cancel-in-progress: true
-
-jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Build
-        run: npm run build
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './dist'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-```
-4. Push to `main` and your site will automatically deploy!
-
-#### Option B: Deploy `dist` via `gh-pages`
-1. Build the production files:
+#### Alternative Method: One-Click CLI Deploy (`gh-pages`)
+If you prefer deploying from your terminal without GitHub Actions:
+1. In your project folder, run:
    ```bash
-   npm run build
+   npm run deploy
    ```
-2. Deploy the `dist` folder to the `gh-pages` branch (or configure GitHub Pages Settings to serve from the `gh-pages` branch or root).
+2. In GitHub repository **Settings > Pages**, select:
+   - **Source:** Deploy from a branch
+   - **Branch:** `gh-pages`
+   - **Folder:** `/ (root)`
+3. Save, and your built app will be live within 1–2 minutes.
 
 ### Deploy to Vercel
 1. Push your repository to GitHub or GitLab.
