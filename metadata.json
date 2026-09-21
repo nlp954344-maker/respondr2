@@ -1,0 +1,6 @@
+{
+  "name": "[respondr] – Assam Campus Merch Survey",
+  "description": "Official youth market research survey recording student demand for collegiate streetwear and campus merchandise across all 35 districts of Assam.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
