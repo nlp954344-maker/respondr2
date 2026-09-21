@@ -151,7 +151,8 @@ We have included automated fixes for both:
 1. In your GitHub repository, click on **Settings** (tab at the top).
 2. On the left sidebar, click **Pages**.
 3. Under **Build and deployment > Source**, click the dropdown and select **GitHub Actions** (NOT "Deploy from a branch").
-4. Since `.github/workflows/deploy.yml` is already committed in the project, any push to `main` (or clicking **Actions > Deploy to GitHub Pages > Run workflow**) will automatically build and publish your site!
+4. Under **Settings > Actions > General > Workflow permissions**, make sure **Read and write permissions** is selected.
+5. Push to `main` (or go to the **Actions** tab, click **Deploy to GitHub Pages**, and click **Run workflow**). Your site will build and publish automatically!
 
 #### Alternative Method: One-Click CLI Deploy (`gh-pages`)
 If you prefer deploying from your terminal without GitHub Actions:
