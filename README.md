@@ -132,7 +132,68 @@ In your Google Sheet, click the **`+`** icon at the bottom to add a second tab n
 
 ---
 
-## 🌐 Deploying to Vercel or Netlify
+## 🌐 Deployment Options
+
+### Deploy to GitHub Pages
+`vite.config.ts` is configured with `base: './'`, enabling the app to load assets properly when deployed under any repository subpath (e.g. `https://<username>.github.io/<repo-name>/`) without showing a blank screen.
+
+#### Option A: GitHub Actions (Recommended)
+1. In your GitHub repository, navigate to **Settings > Pages**.
+2. Under **Build and deployment > Source**, select **GitHub Actions**.
+3. Create `.github/workflows/deploy.yml` in your repo:
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+4. Push to `main` and your site will automatically deploy!
+
+#### Option B: Deploy `dist` via `gh-pages`
+1. Build the production files:
+   ```bash
+   npm run build
+   ```
+2. Deploy the `dist` folder to the `gh-pages` branch (or configure GitHub Pages Settings to serve from the `gh-pages` branch or root).
 
 ### Deploy to Vercel
 1. Push your repository to GitHub or GitLab.
